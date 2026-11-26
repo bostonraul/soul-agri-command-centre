@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Soul Agri Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE work, run like a holographic ops console (the user asked for Jarvis style)
+   IDEA a HUD command centre: each business unit is a node on a glowing ring
+   PICTURE home: the reactor ring with nine unit nodes; unit page: a marker sketch of the path on a whiteboard
+   COLOUR night console #04101c, cyan #3be3ff glow, status green/blue/coral; whiteboard white with marker inks
+   TYPE Rajdhani for HUD titles, Inter for text, Caveat for marker handwriting
+   LAYOUT home: title + unit grid left, ring right; phone: title, ring, grid. Unit page: header, two panels, competitors, value chain, whiteboard, cards */
+:root{color-scheme:dark;--bg:#04101c;--panel:#0a1c2e;--panel2:#0d2439;--line:rgba(59,227,255,.22);--cy:#3be3ff;--ink:#e6f6ff;--mut:#93b6cc;--ok:#4ef0a0;--act:#3be3ff;--res:#a9c8ff;--idea:#ff8f7a}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;background-image:radial-gradient(circle at 80% -10%,rgba(59,227,255,.13),transparent 55%),linear-gradient(rgba(59,227,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(59,227,255,.035) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+a{color:inherit}
+h1,h2,h3{font-family:Rajdhani,Inter,sans-serif;font-weight:700;line-height:1.05;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(34px,5vw,52px);text-wrap:balance}
+h2{font-size:26px;color:var(--cy);margin-bottom:14px}
+h3{font-size:20px}
+.wrap{max-width:1240px;margin:0 auto;padding:clamp(20px,3.5vw,48px) max(4vw,16px)}
+.mut{color:var(--mut)}
+.panel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 0 0 1px rgba(59,227,255,.04) inset,0 0 28px rgba(59,227,255,.06)}
+.chip{display:inline-flex;align-items:center;gap:7px;font:600 13px/1 Inter,sans-serif;padding:6px 10px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.s-ok{color:var(--ok)}.s-act{color:var(--act)}.s-res{color:var(--res)}.s-idea{color:var(--idea)}
+/* home */
+.home{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:32px;align-items:center}
+.lede{font-size:17px;color:var(--mut);max-width:58ch;margin:14px 0 22px}
+.units{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.unit{display:flex;flex-direction:column;gap:8px;text-decoration:none;padding:14px;border-radius:12px;border:1px solid var(--line);background:rgba(10,28,46,.85);min-height:118px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.unit:hover,.unit:focus-visible{border-color:var(--cy);box-shadow:0 0 22px rgba(59,227,255,.28);transform:translateY(-2px);outline:none}
+.unit b{font:700 19px/1.1 Rajdhani,sans-serif}
+.unit span.d{font-size:13.5px;color:var(--mut);line-height:1.35}
+.unit .chip{align-self:flex-start;margin-top:auto;font-size:12px;padding:5px 8px}
+.ring{position:relative;aspect-ratio:1;width:100%;max-width:520px;justify-self:center}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ring a text{font:600 13px Rajdhani,sans-serif;fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:4px}
+.ring a:hover circle.n,.ring a:focus circle.n{fill:var(--cy)}
+.spin{transform-origin:50% 50%;animation:spin 60s linear infinite}
+.spin2{transform-origin:50% 50%;animation:spin 90s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spin,.spin2{animation:none}.unit{transition:none}}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+.foot{margin-top:28px;font-size:13px;color:var(--mut)}
+/* unit page */
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:22px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 15px Inter,sans-serif;text-decoration:none;cursor:pointer}
+.btn:hover,.btn:focus-visible{border-color:var(--cy);outline:none;box-shadow:0 0 14px rgba(59,227,255,.25)}
+.hd{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end;justify-content:space-between;margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.hd p{margin:8px 0 0;color:var(--mut);font-size:17px;max-width:70ch}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px}
+.panel p{margin:0}
+ul.st{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+ul.st li{position:relative;padding-left:20px}
+ul.st li::before{content:"";position:absolute;left:2px;top:.6em;width:8px;height:8px;border:2px solid var(--cy);transform:rotate(45deg)}
+.src{margin-top:14px;font-size:13px;color:var(--mut)}
+.comp{display:grid;gap:10px}
+.co{display:grid;grid-template-columns:minmax(0,1fr);padding:10px 12px;border-radius:10px;background:rgba(4,16,28,.55);border:1px solid rgba(59,227,255,.1)}
+.co b{font-weight:600}.co span{font-size:14px;color:var(--mut)}
+.flag{font:700 15px Rajdhani,sans-serif;color:var(--cy);margin-bottom:8px;display:block}
+.chain{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;counter-reset:s}
+.stg{position:relative;padding:14px;border-radius:12px;background:rgba(4,16,28,.6);border:1px solid var(--line)}
+.stg:not(:last-child)::after{content:"";position:absolute;right:-9px;top:26px;width:8px;height:8px;border-top:2px solid var(--cy);border-right:2px solid var(--cy);transform:rotate(45deg)}
+.stg h3{font-size:17px;margin-bottom:8px}
+.pl{display:flex;flex-wrap:wrap;gap:6px}
+.pl i{font-style:normal;font-size:13px;padding:3px 8px;border-radius:6px;background:rgba(59,227,255,.08);border:1px solid rgba(59,227,255,.18)}
+.wb{background:#f8fafb;border-radius:14px;border:10px solid #c9d3db;box-shadow:0 10px 30px rgba(0,0,0,.4);position:relative;overflow:hidden}
+.wb .fig{position:relative;min-height:340px}
+.wb svg{position:absolute;inset:0;width:100%;height:100%}
+.wbkey{display:flex;flex-wrap:wrap;gap:14px;padding:8px 16px 12px;font:600 18px Caveat,cursive;color:#1b1f24}
+.wbkey span{display:inline-flex;align-items:center;gap:6px}
+.wbkey i{width:22px;height:0;border-top:3px solid}
+.cards{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 14px;scrollbar-color:var(--cy) transparent}
+.card{flex:0 0 min(300px,82%);scroll-snap-align:start;text-align:left;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(160deg,#0f2a44,#0a1c2e);color:var(--ink);font:inherit;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}
+.card:hover,.card:focus-visible{transform:translateY(-4px) scale(1.02);border-color:var(--cy);box-shadow:0 0 26px rgba(59,227,255,.3);outline:none}
+.card h3{font-size:21px}
+.card p{margin:0;font-size:14.5px;color:var(--mut)}
+.card .chip{align-self:flex-start;font-size:12px}
+.card .more{margin-top:auto;font-size:13px;color:var(--cy)}
+.ctl{display:flex;gap:8px}
+.sec{margin-top:26px}
+.sechd{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+.sechd p{margin:0 0 12px;color:var(--mut);font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(10.5em,1fr));gap:12px;margin-bottom:18px}
+.kpi{padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(10,28,46,.85)}
+.kpi b{display:block;font:700 clamp(24px,2.6vw,30px)/1.05 Rajdhani,sans-serif;color:var(--cy);white-space:nowrap}
+.kpi span{font-size:13.5px;color:var(--mut);line-height:1.35;display:block;margin-top:4px}
+.scroll{overflow-x:auto}
+table.ly{width:100%;border-collapse:collapse;font-size:15px}
+table.ly th{text-align:left;font:700 15px Rajdhani,sans-serif;color:var(--cy);padding:8px 10px;border-bottom:1px solid var(--line)}
+table.ly td{padding:9px 10px;border-bottom:1px solid rgba(59,227,255,.1);vertical-align:top}
+table.ly td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+ul.gp{margin:0;padding-left:20px;display:grid;gap:8px;color:var(--ink)}
+@media(max-width:600px){table.ly thead{display:none}table.ly tr{display:grid;padding:8px 0;border-bottom:1px solid rgba(59,227,255,.1)}table.ly td{border:0;padding:2px 0;display:flex;gap:12px;justify-content:space-between;text-align:right}table.ly td::before{content:attr(data-l);color:var(--mut);text-align:left}table.ly td.n{text-align:right}}
+.why{border-color:rgba(78,240,160,.45)}
+.lead{font-size:18px;line-height:1.5;margin:0 0 16px!important;color:var(--ink)}
+.pts{display:grid;grid-template-columns:repeat(auto-fit,minmax(15em,1fr));gap:12px}
+.pt{padding:12px 14px;border-radius:10px;background:rgba(4,16,28,.55);border:1px solid rgba(78,240,160,.2)}
+.pt b{display:block;font:700 17px Rajdhani,sans-serif;color:var(--ok);margin-bottom:4px}
+.pt span{font-size:14.5px;color:var(--ink)}
+.bars{display:grid;gap:10px}
+.br{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14.5px}
+.br .tr{height:16px;border-radius:4px;background:rgba(59,227,255,.08);overflow:hidden}
+.br .tr i{display:block;height:100%;background:linear-gradient(90deg,#1aa7c4,var(--cy));box-shadow:0 0 10px rgba(59,227,255,.5)}
+.br .tr i.g{background:linear-gradient(90deg,#2bb377,var(--ok))}
+.br .tr i.m{background:rgba(147,182,204,.45);box-shadow:none}
+.br em{font-style:normal;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bld{display:grid;grid-template-columns:repeat(auto-fit,minmax(16em,1fr));gap:12px}
+.bld div{padding:14px;border-radius:10px;background:rgba(4,16,28,.55);border:1px solid var(--line)}
+.bld b{display:block;font:700 17px Rajdhani,sans-serif;color:var(--cy);margin-bottom:4px}
+.bld span{font-size:14.5px}
+@media(max-width:600px){.br{grid-template-columns:minmax(0,1fr) auto}.br .tr{grid-column:1/-1;order:3}}
+.mkt{border-color:rgba(255,143,122,.5);min-height:0}
+.mkt:hover,.mkt:focus-visible{border-color:var(--idea);box-shadow:0 0 22px rgba(255,143,122,.3)}
+.plays{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.play{padding:18px;border-radius:12px;border:1px solid var(--line);background:rgba(4,16,28,.6)}
+.play h3{font-size:24px;color:var(--cy)}.play i{display:block;font-style:normal;color:var(--ok);font-weight:600;margin:6px 0 8px;font-size:14.5px}
+.play p{font-size:15px}
+.rec{margin:0 0 16px;padding:14px 16px;border-left:4px solid var(--ok);background:rgba(78,240,160,.07);border-radius:0 10px 10px 0;font-size:17px}
+ol.srcs{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}ol.srcs a{color:var(--cy)}
+@media(max-width:900px){.plays{grid-template-columns:minmax(0,1fr)}}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,8,14,.72);z-index:20}
+.modal.on{display:flex}
+.mbox{width:min(560px,100%);max-height:90vh;overflow:auto;padding:24px;border-radius:16px;border:1px solid var(--cy);background:var(--panel2);box-shadow:0 0 40px rgba(59,227,255,.35)}
+.mbox h3{font-size:28px;margin:12px 0 10px}
+.mbox dl{margin:16px 0 0;display:grid;gap:10px}
+.mbox dt{font:700 15px Rajdhani,sans-serif;color:var(--cy)}
+.mbox dd{margin:0;color:var(--ink)}
+@media(max-width:900px){.home{grid-template-columns:minmax(0,1fr)}.ring{max-width:420px;order:-1}.hero{order:-2}.units{grid-template-columns:repeat(2,minmax(0,1fr))}.chain{grid-auto-flow:row;grid-auto-columns:auto}.stg:not(:last-child)::after{right:auto;left:22px;top:auto;bottom:-9px;transform:rotate(135deg)}}
+@media(max-width:600px){.two{grid-template-columns:minmax(0,1fr)}.units{grid-template-columns:minmax(0,1fr)}.unit{min-height:0}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt"><div class="mbox" id="mbox"></div></div>
+<script>
+{
+const ST={ok:["Operating","s-ok"],act:["In progress","s-act"],res:["Researching","s-res"],idea:["Idea stage","s-idea"]};
+const V=[
+{id:"farm",name:"Regenerative farm & tree crops",short:"Syntropic agroforest on a 4,200-acre certified organic estate at Rwekunya, Kiryandongo, Uganda",st:"ok",
+kpi:[["4,200 ac","Certified organic estate (former maize farm)"],["2,619 ac","Set aside for the syntropic forest, ~69 blocks"],["330–335 ac","Planted so far"],["565 ac","Planted by end-2026; all 2,619 by 2031"],["800 / ac","512 biomass + 288 productive plants"],["4,078 t","Fruit and nut output a year at peak (2037)"]],
+syn:"Syntropic farming, developed by Swiss farmer Ernst Götsch in Brazil, designs a farm to work like a natural forest. Many species are planted close together in layers by height (stratification) and by life span (succession), so every level of sunlight and every year of the cycle is used. Fast-growing support trees are pruned regularly and the cuttings are dropped on the ground as mulch (chop and drop). That mulch builds soil, holds water and feeds the crops in place of bought fertiliser, so the land gets more fertile each year instead of less.",
+why:{lead:"Regenerative farming is what makes customers choose Soul Agri's produce over a commodity supplier, and keep coming back: buyers pay for produce they can prove is organic, deforestation-free and traceable to the plant. The same practices also earn carbon income and cut costs.",
+pts:[["Access to EU buyers","From 30 Dec 2026, EU importers of coffee and cocoa must prove each lot comes from deforestation-free plots (EUDR). An agroforest planted on former maize land, with plot data and QR-tagged plants, meets that test where many smallholder lots fail."],["Organic premium","The 4,200-acre estate is certified organic. Organic and specialty buyers pay more and reorder from suppliers whose produce is residue-free and certified."],["A story buyers can check","Specialty roasters, chocolate makers and wellness brands sell provenance. Plant-level traceability and a living-forest farm give them a story they can show their own customers."],["Carbon from the same acre","Biomass, soil carbon and biochar can be certified and sold as carbon credits: a second income without more land."],["Lower costs, lower risk","Mulch, compost, biochar and microbes replace bought fertiliser, and 13 crops harvested across seasons replace a single maize crop exposed to one price and one bad season."],["Know-how to sell","A proven system lets the farm sell certified plants, inputs and SOPs to neighbouring farms, the base of the 50,000-acre outgrower plan."]]},
+money:[["Fruit and nuts","13 productive species: avocado, mango, jackfruit, banana, soursop, guava, jamun, macadamia, cashew, cinnamon, moringa","4,078 t/year at peak (2037): avocado 1,157 t, jackfruit 813 t, mango 732 t; 70% processed, 30% fresh export"],["Coffee and cocoa","Robusta KR7/KR8 coffee and cocoa, ~160 plants/acre","First yield in year 3–4, peak years 7–20; 3,600 t cherry primary processing capacity"],["Essential oils","Lemongrass, rosemary, palmarosa, mint","100 kg grass per batch → ~1 L oil; 84 t grass → ~420 kg oil a year"],["Jaggery","12 of 150 acres of sugarcane","32–33 t a year; cost ₹83/kg vs price ₹263/kg; 49-month payback at full capacity"],["Powders and snacks","Moringa, beetroot, carrot, turmeric, ginger; vacuum-fried jackfruit, sweet potato, cassava","126 t a year into powders (moringa cost ₹154/kg vs ₹450–550/kg target); 25 t into vacuum frying"],["Oils and honey","Cold-pressed soybean and sunflower; 180 bee boxes","100 t seed a year; honey ~1 t now, ~5 t at 1,000 boxes"],["Nursery","Certified clonal plants","Up to ~900,000 plants a year; sales across East Africa"],["Carbon credits","Biomass, soil carbon and biochar","Not yet registered; 31 t biochar on the first block"],["Timber and tourism","Mahogany and teak; 400-acre forest parcel","Timber at ~15 years; wellness retreats, farm-to-table, nature trails"]],
+land:[["Syntropic agroforest",2619,"2,619"],["Not yet allocated",660,"~650–670"],["Silvopasture (cattle)",380,"~380"],["Internal roads",290,"~280–300"],["Sugarcane",150,"150"],["Agro-processing zone",100,"100"]],
+prog:[["2024 trial",10,"10"],["Scale-up",115,"115"],["2026 Season 1",335,"330–335"],["2026 Season 2",565,"565"],["2031 target",2619,"2,619"]],
+layers:[["Emergent (timber)","Mahogany, teak, silky oak","~18","Timber at ~15 years"],["High canopy","Mango (~10/acre), jackfruit (~2–9/acre), cashew","~24","Mango 732 t and jackfruit 813 t a year at peak"],["Medium canopy","Avocado, macadamia, cinnamon, soursop, guava, jamun","~26–34","Avocado from year 5–6; 1,157 t a year at peak"],["Lower canopy","Coffee (~70–80) and cocoa (~60–70)","~130–160","First yield year 3–4; peak years 7–20"],["Lower canopy","Banana, moringa","~48","Banana is early cash; fades by ~2030 as shade closes"],["Chop and drop","Albizia, calliandra, Cassia siamea, leucaena, gliricidia, eucalyptus, pink trumpet","~512","First cut at ~6 months; cut back to mulch after 3–3.5 years"],["Line and inter-row","Lemongrass, rosemary, mint; palmarosa, ginger, turmeric proposed","In rows","Oils and spices from year 1"]],
+build:[["Land split","2,619 acres go to the forest in ~69 blocks across Divisions A–E. Sugarcane, pasture, roads and the processing zone sit outside it."],["4-row design","Row 1 high canopy; row 2 coffee and cocoa with chop-and-drop and rosemary; row 3 timber and medium canopy; row 4 coffee and cocoa with chop-and-drop and companions. A plant every 1 m, a productive plant every 3 m, 5 m between system rows, 4 lines of 200 m per acre."],["Phased planting","10-acre trial in 2024, then 115, 330–335 and 565 acres, then ~450 acres a year. Coffee and cocoa go in ~6 months after the shade species."],["Soil without tillage","Pits or beds only, mulch for 90% ground cover, 600 t compost and 31 t biochar on the first block, 4 microbial nutrient strains every 30–45 days, biopesticides only when pests show."],["Water","58 ponds planned (20 dug), each with a 7.5 HP pump serving a 50-acre zone; drip for all 2,619 acres at over ₹14 crore."],["Own nursery","150,000 plants per cycle; self-sufficient in coffee, cocoa and fruit clones by late 2027."],["Processing on site","A 9,000 sq ft facility (~₹3 crore) so 70% of output can be sold processed."],["Tracking","Verdnt ERP block records, QR tags on all 288 productive plants per acre, a census twice a year, drones once the flight permit arrives."]],
+def:"A plantation business: grow perennial tree crops, harvest, do the first processing (pulping, fermenting, drying) and sell to exporters, processors and brands. Soul Agri's version is a syntropic agroforest with 13 productive species, plus on-farm processing, nursery, carbon and tourism income from the same land.",
+now:["330–335 acres planted: a 10-acre trial in 2024, 115 acres after scale-up, and 200 acres in Season 1 2026 (15 Feb–15 May), where 11 of 13 productive species went in and coffee and cocoa waited for shade.","Season 2 2026 (1 Aug–early Dec) adds 225–250 acres for 565 by year end; 240,000 plants needed, 137,000 from the own nursery; 12,000 chop-and-drop plants already in block D5.","2027 Season 1: 250 acres coffee-led, ~20,000 KR7/KR8 seedlings booked with NARO/NaCORI.","Mortality of 35–40% in the first 115-acre block, partly from 2×2 ft pits in stony hardpan; target survival is 95%.","75 permanent staff plus daily casual labour; ERP choice between FarmERP and KhetiBadi for 31 users."],
+gaps:["Estate size: 4,200 acres (Jul call) vs 4,400 acres (Aug workshop). The deed or survey should settle it.","Planted area reconciled as 330–335 acres, with 35 acres the first fully established block; confirm with the field census.","About 650–670 acres are not allocated in either source (possibly the 400-acre forest parcel and idle land).","Still missing: sizes and crops for the ~69 blocks, per-acre counts and yields for most fruit and nut species, coffee and cocoa yields, livestock numbers and revenue projections."],
+src:"Strategic Brainstorming Workshop (Aug 2026) and Regenerative Agroforestry & Organic Value Chain call (Jul 2026), via Gemini Notebook, 24 Nov 2026. Figures as spoken; not yet checked against farm records",
+india:[["Tata Consumer Products","Coffee estates in Karnataka; plantation to brand"],["Harrisons Malayalam","Tea and rubber estates, Kerala"],["Sahyadri Farms","Farmer-owned fruit and vegetable value chain"],["Blue Tokai","Specialty roaster buying direct from estates"]],
+uganda:[["Kyagalanyi Coffee (Volcafe)","Top-3 coffee exporter; runs outgrower programmes"],["Ugacof","Largest exporter by share in late 2025"],["Olam Uganda (ofi)","Coffee and cocoa sourcing"],["Clark Farm, Kyenjojo","Estate coffee, 305 t in 2025, plus farm tours"]],
+chain:[["Inputs & seedlings",["Own nursery","Compost","Biochar","Bio-inputs"]],["Growing",["Syntropic blocks","Future outgrowers"]],["Processing",["Coffee primary","Oils","Jaggery","Powders"]],["Export & trade",["Ugacof","Kyagalanyi","Touton","Olam"]],["Brands & buyers",["Roasters","Chocolate makers","Wellness brands"]]],
+path:[{h:"Now",n:[["330–335 ac planted","now"]]},{h:"End-2026",n:[["565 ac planted","step"]]},{h:"Gate",n:[["Survival ≥95% + block register in ERP","gate"]]},{h:"2027–2031",n:[["~450 ac a year to 2,619 ac","step"],["Outgrower network grows","alt"]]},{h:"2035–2037",n:[["4,078 t a year at peak; 50,000-ac ecosystem","end"]]}],
+ideas:[["x","50,000-acre outgrower ecosystem","Bring the 30–40 neighbouring farms (~30,000 ha) into one regional ecosystem by 2035 without owning the land.","Scale without buying land; feeds nursery, inputs and carbon sales.","Side-selling, credit risk and quality control."],["x","Processing on the farm","Use the 9,000 sq ft facility for essential oils, jaggery, honey bottling, vacuum frying, plant powders and extracts.","Keeps margin on the farm and earns before trees bear.","Food-safety certification and product-market fit."],["x","Honey and bees","Hives across the agroforest for honey and pollination.","Early income from flowering biomass trees.","No hive plan or numbers yet."],["x","Blueberry & high-value fruit block","Add a premium fruit block, inspired by the India blueberry study, to lift revenue per acre.","Higher value per acre; uses nursery and drip skills.","Needs chill-hour fit, cold chain and a buyer before planting."],["x","NutriFresh-style fresh supply","Supply Kampala hotels, supermarkets and caterers directly, like NutriFresh and Hyperpure do in India.","Captures the retail margin; steady weekly cash.","Logistics and daily fulfilment discipline."],["x","Traceable specialty lots","Sell regenerative, EUDR-ready coffee and cocoa lots, with QR-tagged plants, at a premium.","Premium per kg and buyer loyalty.","Needs cupping scores and plot-level data."],["o","Contract farming","Grow to a pre-agreed price and spec for an exporter or processor.","Price certainty from day one.","Lower upside; buyer power."],["o","Farm management as a service","Run estates for absentee landowners, using the syntropic SOPs, for a fee plus share.","Asset-light income from know-how.","Reputation risk if yields fall."]]},
+{id:"nursery",name:"Nursery & grafting",short:"Seedlings and grafted trees for sale, not just own use",st:"act",
+def:"Propagate and sell planting material: seedlings, grafted fruit trees and tissue-culture plantlets. Revenue is per plant; buyers pay for clean, true-to-variety stock and on-time supply for the planting season.",
+kpi:[["150,000","Plants per cycle (~6 cycles a year)"],["~900,000","Maximum plants per year"],["~90,000","Current stock, scaling to 137,000–140,000"],["~17,000","Rootstocks on the 1-acre grafting area"]],
+now:["Aug 2026 decision: start commercial sales now instead of 2028, selling certified clones in Uganda, Kenya and East Africa (no volume target yet).","In-house focus on 4 high-value crops: macadamia, avocado, coffee, cocoa; teak, mahogany, jackfruit and mango bought in with chemical-use declarations to protect organic status.","Grafting cycle is 5–6 months; full grafted supply in 9–12 months; self-sufficient in coffee, cocoa and fruit clones by late 2027.","Ready stock: cocoa 12,000–13,000, lemongrass slips 80,000, sunn hemp seed 20 t; rosemary propagation at 89% success.","Scions taken from proven 5–10-year-old orchards (orchard audits) instead of DNA testing."],
+src:"Strategic workshop, Aug 2026 (Gemini Notebook) · Hyderabad nursery study, Oct 2026",
+india:[["Kadiyam nursery cluster","Andhra Pradesh; India's largest ornamental nursery cluster"],["Ugaoo","Online plant and garden brand"],["Nurserylive","Online nursery, pan-India delivery"],["Hyderabad ornamental nurseries","Studied for moat, customers and GTM"]],
+uganda:[["AGT Laboratories","Largest tissue-culture lab in East and Central Africa"],["NARO research institutes","Breeder and certified planting material (e.g. coffee)"],["Licensed coffee nurseries","Many small operators supplying government schemes"]],
+chain:[["Mother stock",["Research institutes","Certified gardens"]],["Propagation",["Grafting","Tissue culture"]],["Hardening & inspection",["Regulator checks","Organic declarations"]],["Sales channels",["Govt & NGO schemes","Estates","Agro-dealers","Retail"]],["After-sales",["Planting service","Agronomy advice"]]],
+path:[{h:"Now",n:[["4 high-value crops in-house","now"]]},{h:"6 months",n:[["First commercial sales + price list","step"]]},{h:"18 months",n:[["Bulk supply to schemes & estates","step"],["Retail & ornamental garden centre","alt"]]},{h:"Gate",n:[["Repeat orders > 40%","gate"]]},{h:"36 months",n:[["Certified clean-plant brand + tissue culture","end"]]}],
+ideas:[["x","Ornamental line for Kampala","Indoor and landscape plants for homes, offices and hotels, inspired by the Hyderabad nursery study.","Higher price per plant; urban demand.","Needs a city outlet and delivery."],["x","Certified coffee seedlings","Sell clean KR-series coffee seedlings to outgrowers and schemes.","Large, seasonal volume.","Licensing and disease control."],["x","Grafted Hass avocado","Supply export-oriented avocado growers.","Export boom pulls demand.","Rootstock quality and lead time."],["o","Plant subscription & landscaping","Monthly plant care and replacement for offices and hotels.","Recurring revenue.","Service staff and logistics."],["o","Tissue-culture contract lab","Produce plantlets for others, like AGT does.","Higher tech moat.","Lab capex and skilled staff."],["o","Planting as a service","Seedlings, planting and first-year care sold as one package.","Bigger ticket per customer; ties to biologicals.","Field team needed."]]},
+{id:"carbon",name:"Biochar & carbon assets",short:"In-house biochar, carbon removal credits and climate funding",st:"act",
+def:"Turn crop and wood residue into biochar by pyrolysis, put it in soil, and sell certified carbon removal credits as well as the biochar. Related routes are soil carbon, agroforestry and enhanced rock weathering. Revenue is credits times price, minus monitoring, certification and farmer costs.",
+now:["In-house biochar for about 4,000 acres, used with syntropic and regenerative farming and microbial inputs; 31 t biochar and 600 t compost went on the first 35 acres.","Chop-and-drop, Panicum grass and sunn hemp target 15–20 t biomass per ha a year and 90% soil cover; biomass data is logged for carbon certification.","No credits registered yet; the pre-mortem flagged the pre-issuance cash gap, methane deductions and dependence on a few buyers.","Historical deforestation check under way; it decides which land is eligible.","Funding scan (Nov 2026): CIEIF US$75k grant fits an ERW + biochar field trial; Global EbA and Horizon Europe to watch."],
+src:"Biochar pre-mortem, Oct 2026 · Carbon learning module · CIEIF research, Nov 2026",
+india:[["Varaha","Biochar, agroforestry and ERW across farm networks"],["Alt Carbon","Biochar and ERW; Microsoft offtake"],["Jain Irrigation","Biochar credits sold via Supercritical"],["Merago / CITI / ICAC","Cotton-stalk biochar programme we assessed"]],
+uganda:[["Stack Carbon","Nile Char biochar plan and ERW offtake with Wild Assets"],["African Biochar Solutions","Industrial biochar and fertiliser plant, Jinja"],["Kijani Forestry","Smallholder forestry credits sold to Microsoft"],["ECOTRUST: Trees for Global Benefit","Long-running smallholder agroforestry credits"]],
+chain:[["Feedstock",["Crop residue","Prunings","Husks"]],["Pyrolysis",["Kilns","Reactors"]],["Apply & measure",["Moisture logs","Weighment","GPS proof"]],["Certify",["CSI","Puro.earth","Isometric","Verra"]],["Sell",["Supercritical","Brokers","Direct buyers"]]],
+path:[{h:"Now",n:[["Biochar on own 4,000 acres","now"]]},{h:"6 months",n:[["Baselines, MRV data, deforestation check","step"]]},{h:"Gate",n:[["Dry-run audit passed","gate"]]},{h:"18 months",n:[["Register credits ourselves","step"],["Partner with a developer","alt"]]},{h:"36 months",n:[["Credits + biochar fertiliser product line","end"]]}],
+ideas:[["x","Microbe-loaded biochar","Pre-load biochar with our own microbes and test whether it keeps carbon longer and cuts N₂O. Core of the CIEIF pitch.","Unique product and research story.","Needs a science partner and trial design."],["x","ERW + biochar trial","Spread crushed basalt with biochar on test blocks with a university partner.","Durable credits at higher prices.","Rock source nearby is unconfirmed."],["x","Agroforestry credits","Credit the syntropic tree systems as agroforestry removals.","Uses planting already planned.","Slow to issue; reversal risk."],["o","Biochar fertiliser","Sell biochar-compost blends to farmers whether or not credits sell.","Survives a year with no credit sales.","Farmer education."],["o","C-Sink manager for outgrowers","Run kilns and monitoring for smallholders and share credit income.","Scale beyond own land.","Data integrity across many farms."],["o","Pre-sold offtake","Sign forward sales or prepayments to fund kilns.","Solves the cash gap.","Delivery penalties if short."]]},
+{id:"bio",name:"Agri biologicals (microbials)",short:"Biofertilisers and biopesticides for Uganda and the EAC",st:"res",
+def:"Make or distribute living crop inputs: biofertilisers (nitrogen fixers, phosphate solubilisers, mycorrhizae) and biopesticides (Trichoderma, Beauveria, Bacillus). The business runs on fermentation and formulation, product registration, and sales through dealers and estates; shelf life and farmer trust drive margins.",
+now:["Uganda and EAC market study scoped; competitor map built from the MAAIF register.","Only about 16% of Ugandan agro-dealers stock biopesticides (Tambo et al., 2024).","Talks with NARL; a US$20k primary-research quote judged too costly.","FieldProof proposed: a soil-health consulting team that maps the market for up to US$50k.","AGT Laboratories identified as a white-label distribution lead."],
+src:"Biologicals assessment, Nov 2026 · FieldProof deck, Nov 2026",
+india:[["T-Stanes","Biocontrol and biofertilisers; sold in Uganda via Bukoola"],["IPL Biologicals","Large biofertiliser and biopesticide range"],["Koppert India","Biological control and inoculants"],["UPL (NPP)","Natural plant protection division"],["Coromandel International","Bio range alongside fertilisers"]],
+uganda:[["Koppert Uganda","Trichoderma, nematodes, predatory mites"],["Real IPM Uganda (Biobest)","Metarhizium, Bacillus, predators"],["Kinyara Sugar","In-house strains for cane growers"],["Vermipro","Local biofertiliser producer"],["Unode Agro / Bio Farm","Organic inputs, white-label with AGT"],["Dudutech (Bioline)","Kenyan biopesticides sold in Uganda"]],
+chain:[["Strains & R&D",["NARL","Universities","Licensors"]],["Fermentation",["Own plant","Contract makers"]],["Registration",["MAAIF","EAC rules"]],["Distribution",["Agro-dealers","Estates","NGO & govt"]],["Farmer advice",["Demo plots","Soil tests"]]],
+path:[{h:"Now",n:[["Desk research + competitor map","now"]]},{h:"6 months",n:[["FieldProof soil clinics collect data","step"]]},{h:"Gate",n:[["LOIs + trial results","gate"]]},{h:"18 months",n:[["Distribute / white-label partners","step"],["Contract-make own SKUs","alt"]]},{h:"36 months",n:[["Own brand + plant serving the EAC","end"]]}],
+ideas:[["x","FieldProof","Enter as a soil doctor, then become a verifier, then launch our own product brand.","Cheap market data and trust before capex.","Neutrality must hold while we learn."],["x","White-label via AGT-style partners","Supply products under a distributor's brand to reach its farmers fast.","Instant reach.","Thin margins, weak brand."],["x","EAC and Gulf exports","Price-benchmarked for Kenya, Tanzania, Rwanda, UAE and Saudi Arabia.","Bigger market than Uganda alone.","Separate registrations per country."],["o","Per-acre input subscription","Estates pay per acre per season for a managed bio-input programme.","Recurring, sticky revenue.","Must prove yield gains."],["o","Paid soil-testing lab","Charge for soil and leaf analysis; recommend inputs.","Data moat and lead source.","Lab accreditation."],["o","Regen input bundle","Compost, biochar and microbes sold as one package.","Uses own farm outputs.","Bulky logistics."]]},
+{id:"ac",name:"Activated carbon",short:"Contract-made first, own plant later",st:"res",
+def:"Make highly porous carbon from coconut shell, wood, coal or crop residue: carbonise it, then activate with steam or chemicals. It is sold by grade (powdered PAC, granular GAC, impregnated, pharma) to water treatment, gold recovery, food and pharma, from about $760/t for commodity grades to $12,900/t for pharma grade.",
+now:["India assessment: US$266M and 164,000 t market (2025), 120+ makers, India a net exporter.","Uganda price-tier deck: 31% target contribution margin; cost bars are ceilings to prove in a pilot.","RFQs, factory visits and contract-manufacturing talks under way to de-risk before capex."],
+src:"India activated carbon deck, Aug 2026 · Uganda pricing deck, Aug 2026",
+india:[["Raj Carbon","~50,000 t/yr, coconut shell"],["Jacobi Carbons India","~16,000 t/yr, Coimbatore"],["Indo German Carbons","Kochi, coconut shell"],["Suneeta Carbons","~10,000 t/yr, Tamil Nadu"],["Kalpaka Chemicals","~8,000 t/yr, Thoothukudi"]],
+uganda:[["No industrial producer found","Demand is met by imports"],["Makerere University (CEDAT)","Research on rice-husk granular carbon"],["Global majors via importers","Haycarb, Cabot Norit, Kuraray"]],
+chain:[["Feedstock",["Coconut shell","Wood","Husks","Farm char"]],["Carbonise",["Kilns","Retorts"]],["Activate",["Steam","Chemical"]],["Finish",["Grading","Acid wash","Impregnation"]],["Qualify & sell",["Water utilities","Gold mines","Food & pharma"]]],
+path:[{h:"Now",n:[["RFQs + factory visits","now"]]},{h:"6 months",n:[["Contract-manufacturing pilot","step"]]},{h:"Gate",n:[["2 buyers qualify our samples","gate"]]},{h:"18 months",n:[["Standard grades for EA water & mining","step"],["Specialty export grades","alt"]]},{h:"36 months",n:[["Own activation plant on farm char","end"]]}],
+ideas:[["x","Farm char as feedstock","Use our own char as raw material for activation.","Low feedstock cost; links to biochar.","Ash and hardness must meet spec."],["x","Import replacement","Contract-make in India, sell in Uganda and the EAC.","Proves demand before a plant.","Freight and duty eat margin."],["x","Qualified export grades","Target buyers who pay for certified, tested grades.","Higher price tier.","Long qualification cycles."],["o","Trading first","Distribute other makers' carbon to build buyer relationships.","Asset-light start.","Low margin."],["o","Reactivation service","Collect spent carbon from users and reactivate it.","Recurring, sticky contracts.","Furnace capex and permits."],["o","Water-filter cartridges","Consumer and institutional filters using our carbon.","Brand margin.","Retail distribution needed."]]},
+{id:"export",name:"Agri exports",short:"From spot sales to long-term export contracts",st:"idea",
+def:"Buy, grade, certify and ship farm produce to foreign buyers. An exporter earns the spread per tonne; value rises with processing, certification (organic, Rainforest Alliance, EUDR traceability) and standing off-take contracts.",
+now:["Roadmap target: at least one multi-year export off-take signed by month 36.","Export rules dashboard built for spices, cocoa, coconut and lemongrass oil across 30+ countries.","EU deforestation rules (EUDR) apply to coffee and cocoa from 30 Dec 2026 for large and medium operators."],
+src:"Growth roadmap, Sep 2026 · Export metrics dashboard, Jun 2026",
+india:[["ofi (Olam Food Ingredients)","Global sourcing of coffee, cocoa, spices"],["Synthite Industries","Spices and extracts exporter"],["ITC Agri Business","Commodity sourcing and export"],["Allana Group","Large agri and food exporter"]],
+uganda:[["Ugacof","Largest coffee exporter by share, late 2025"],["Kyagalanyi Coffee","Volcafe-owned exporter"],["Touton Uganda","Coffee and cocoa"],["Export Trading Company (U)","Top-5 coffee exporter"]],
+chain:[["Production",["Estates","Outgrowers"]],["Aggregate & grade",["Collection centres","Graders"]],["Process & certify",["Organic","EUDR data","Lab tests"]],["Logistics",["Mombasa port","Dar port","Air freight"]],["Buyers",["Importers","Roasters","Retailers"]]],
+path:[{h:"Now",n:[["Domestic and spot sales","now"]]},{h:"6 months",n:[["Certifications + EUDR plot data","step"]]},{h:"18 months",n:[["First export lots via a trader","step"]]},{h:"Gate",n:[["Buyer repeat + price premium","gate"]]},{h:"36 months",n:[["Own export licence, direct buyers","end"],["Long-term off-take with a major","alt"]]}],
+ideas:[["x","Regenerative premium coffee & cocoa","Sell traceable, regenerative lots at a premium to specialty buyers.","Higher price per kg.","Proof of practice and quality."],["x","Crop plus carbon bundle","Sell coffee with its farm's carbon removals attached.","Two incomes from one farm.","Buyer acceptance is new."],["x","Value-added products","Avocado oil, cocoa nibs, roasted coffee for export.","Keeps processing margin.","Food-safety certification."],["o","Export aggregator","Buy and export for neighbouring smallholders.","Volume and licence utilisation.","Quality control across farms."],["o","India–Uganda corridor","Use the group's India network to sell into India.","Known market and relationships.","Indian import duties and SPS rules."],["o","Direct-to-consumer abroad","Online specialty coffee sold to overseas consumers.","Highest margin per kg.","Marketing spend and fulfilment."]]},
+{id:"oils",name:"Essential oils",short:"Lemongrass, rosemary and mint grown as line crops",st:"act",
+def:"Grow aromatic crops such as lemongrass, citronella, eucalyptus and rosemary, steam-distil them, and sell the oils to flavour, fragrance, cosmetic and pharma buyers. Paperwork (GC-MS analysis, safety data sheets, REACH and IFRA) gates sales more than import duty does.",
+now:["Lemongrass: 25 acres planned for Season 2, 80,000 slips ready in-house, 0.5 m spacing (wider spacing fixed rust in pilot block C9).","Test distillation yielded 250–300 g of oil per run; the facility line is sized at 100 kg grass per batch (~1 L oil), up to 3 L a day, ~420 kg oil a year from 84 t of grass.","Palmarosa added alongside lemongrass and rosemary.","Rosemary grows in rows 2 and 4 to hold soil; mint planned as a line crop for oil.","Distillation to sit in the 9,000 sq ft processing facility. Not yet costed.","Uganda exported about US$1.9M of essential oils in 2022 (OEC)."],
+src:"Strategic workshop, Aug 2026 (Gemini Notebook) · Export metrics dashboard, Jun 2026",
+india:[["Synthite Industries","World-scale spice oils and oleoresins"],["Plant Lipids","Oleoresins and essential oils"],["Mane Kancor","Flavour and fragrance ingredients"],["Ultra International","Essential oils and aroma chemicals"]],
+uganda:[["Aadrea Essential Oils","Lemongrass, rosemary, eucalyptus; exports"],["Pearl of Africa Oil & Nut Co.","Lemongrass oil supplier"],["EOCCPHP (UNCST-backed)","Commercialisation project with outgrowers"]],
+chain:[["Aromatic crops",["Own fields","Outgrowers"]],["Distillation",["Steam stills"]],["Testing",["GC-MS","Safety data sheets"]],["Traders & blenders",["Exporters","Fragrance houses"]],["End brands",["Cosmetics","Pharma","Food"]]],
+path:[{h:"Now",n:[["Test runs: 250–300 g oil per run","now"]]},{h:"Season 2",n:[["25 ac lemongrass as line crop","step"]]},{h:"18 months",n:[["Still in processing facility + GC-MS tests","step"]]},{h:"Gate",n:[["Oil yield and buyer price confirmed","gate"]]},{h:"36 months",n:[["Bulk oil to traders","end"],["Own wellness brand","alt"]]}],
+ideas:[["x","Lemongrass on field borders","Grow lemongrass on bunds and between tree rows.","Uses idle land; controls erosion.","Labour at harvest."],["x","Distil with pyrolysis heat","Use waste heat from biochar kilns to run the still.","Cuts fuel cost.","Needs kiln and still on one site."],["o","Contract distillation","Distil for local growers for a fee.","Fills still capacity.","Batch quality control."],["o","Spent grass to compost","Return distilled grass to compost or biochar.","Zero-waste loop.","Small extra value."],["o","Repellents for local market","Citronella-based insect repellents.","Local demand, short supply chain.","Product registration."]]},
+{id:"tourism",name:"Agri-tourism & integrated resort",short:"Farm tours, eco-lodge, resort living",st:"idea",
+def:"Earn from visitors on a working farm: tours, farm stays, eco-lodges, farm-to-table food and events. Tourism margins are far higher than crop margins, but it needs capex, access roads and a story worth travelling for.",
+now:["A 400-acre forest parcel is designated for forest, wellness and wildlife conservation.","Agro-tourism is one of the farm's planned revenue lines: wellness retreats, farm-to-table, nature trails, corporate retreats.","In the roadmap as a land-use valuation with a go/no-go decision by month 36.","Uganda Tourism Board is pushing a coffee tourism trail (2026)."],
+src:"Strategic workshop, Aug 2026 · Growth roadmap, Sep 2026",
+india:[["Plantation Trails (Tata Coffee)","Heritage bungalows on coffee estates, Coorg"],["Evolve Back Coorg","Luxury resort on a coffee plantation"],["Sula Vineyards","Wine tourism: tours, tastings, stays"]],
+uganda:[["Clark Farm, Kyenjojo","Coffee estate with walks, cycling, farm-to-fork"],["Emburara Farm Lodge","Farm lodge with cattle and cultural tours, Mbarara"],["Kakiri Farm Resort","Farm resort near Kampala"],["Sipi River Lodge","Base for Mt Elgon coffee tours"]],
+chain:[["Land & farm",["Estates","Nursery","Kilns"]],["Experiences",["Tours","Harvest & roast","Workshops"]],["Stay & food",["Lodge","Farm-to-table"]],["Distribution",["Tour operators","Online travel sites","UTB"]],["Guests",["Tourists","Schools","Corporates"]]],
+path:[{h:"Now",n:[["Idea in roadmap","now"]]},{h:"6 months",n:[["Day tours + coffee tasting pilot","step"]]},{h:"18 months",n:[["Demand study and lodge comparables","step"]]},{h:"Gate",n:[["Go / no-go on land use","gate"]]},{h:"36 months",n:[["Eco-lodge on the farm","end"],["Integrated resort living","alt"]]}],
+ideas:[["x","Regen farm day tours","Coffee, cocoa, biochar and nursery tours with tasting.","Low capex test of demand.","Visitor safety (snake risk noted)."],["x","Integrated resort living","Homes and plots set in a working regenerative farm.","Highest land value uplift.","Irreversible land-use call."],["o","Corporate retreats & school trips","Packaged learning days for firms and schools.","Weekday demand.","Facilities and food service."],["o","Farm-to-table restaurant","A Kampala outlet sourcing from the farm.","Brand showcase in the city.","Restaurant operations risk."],["o","Research and volunteer stays","Hosting university researchers and volunteers.","Data for carbon and soil work.","Low revenue."]]},
+{id:"solar",name:"Solar & renewable energy",short:"Group strength applied to the farm",st:"ok",
+def:"Generate and sell power from solar and wind: utility-scale plants selling under power purchase agreements, captive plants for one user, and productive-use solar (irrigation pumps, dryers, cold rooms) for farms.",
+now:["The LNB group already operates solar and wind assets.","Farm power: 620–680 hours of grid outage a year; solar costs ₹6–7/unit vs ₹13.4 grid and ₹28 diesel.","Options costed: solar pump mounts for 58 ponds (~₹1.16 crore) and an off-grid 400 kW PV + 1.25 MWh battery system (~₹5 crore).","Renewable energy flagged as a long-term theme that could power farm processing and support carbon projects."],
+src:"Project tracker, Sep 2026 · Regenerative agroforestry call, Jul 2026",
+india:[["Adani Green Energy","Utility-scale solar and wind"],["Tata Power Renewable Energy","Utility, rooftop and agri solar"],["ReNew","Utility-scale renewables"],["PM-KUSUM scheme","Government support for farm solar pumps"]],
+uganda:[["Nexus Green","Hundreds of solar water and irrigation systems"],["Tulima Solar","Solar irrigation for smallholders"],["SunCulture","Pay-as-you-go solar irrigation"],["SolarNow","Solar systems with financing"]],
+chain:[["Equipment",["Panels","Inverters","Pumps"]],["EPC & install",["Engineers","Installers"]],["Finance",["Pay-as-you-go","Banks","Grants"]],["Operate",["O&M teams","Monitoring"]],["Users",["Farms","Processors","Grid"]]],
+path:[{h:"Now",n:[["Group solar and wind assets","now"]]},{h:"6 months",n:[["Farm energy audit","step"]]},{h:"18 months",n:[["Captive solar: irrigation, drying, nursery","step"]]},{h:"Gate",n:[["Payback under 5 years","gate"]]},{h:"36 months",n:[["Irrigation-as-a-service to neighbours","end"],["Agri-voltaics","alt"]]}],
+ideas:[["x","Captive farm solar","Power irrigation, nursery and processing on site.","Cuts diesel and grid cost.","Upfront capex."],["x","Solar dryers","Dry coffee and cocoa with solar dryers.","Better quality, less spoilage.","Batch size limits."],["o","Agri-voltaics","Grow shade crops under raised panels.","Two incomes per acre.","Crop fit and structure cost."],["o","Pay-per-use irrigation","Sell water or pump time to outgrowers.","New service income.","Collections risk."],["o","Cold storage as a service","Solar cold rooms rented by the crate.","Reduces post-harvest loss.","Utilisation risk."]]}
+];
+
+const F={id:"fertiliser",name:"Fertiliser: the incumbent",short:"Synthetic fertiliser is the habit Soul Agri's regenerative inputs must displace or plug into",
+kpi:[["708 LMT","Fertiliser used in India in 2024-25, 387 LMT of it urea"],["~50%","Share of India's DAP that is imported; all of its potash"],["2–3 kg/ha","Uganda's application rate vs 22 kg Africa average"],["67,130 t","Uganda's fertiliser imports in 2022 (peak 100,120 t in 2018)"],["None","Primary mineral fertiliser production in Uganda (IFDC)"],["<8%","Ugandan households that use fertiliser"]],
+what:"A fertiliser is anything added to soil or plants to supply the nutrients crops need. The big three are nitrogen (N) for leaf growth, phosphorus (P) for roots and flowering, and potassium (K) for fruit quality and stress tolerance; calcium, magnesium, sulphur and micronutrients such as zinc and boron matter too. Synthetic fertilisers deliver these as concentrated salts that act within days. Organic and biological inputs supply them more slowly, by feeding soil life and building organic matter.",
+dep:[["Fast, visible yield response","Nutrients act within days, and on depleted soils the jump is large: one Uganda maize trial at a medium NPK rate gave 270% more yield than no fertiliser."],["Subsidies make it cheap","India's subsidy keeps urea prices artificially low, so farmers over-apply nitrogen. Uganda gives free bags to coffee, tea and cocoa smallholders through government programmes."],["The soil-depletion treadmill","Uganda loses about 80 kg of nutrients per hectare a year to erosion and harvests. Once organic matter is gone, crops need the bag every season to hold yield."],["Habit, dealers and credit","Agro-dealers, cooperatives and input credit are built around the bag, and dealer margins depend on volume."],["Simple to use","One product, a known dose, no living organisms to keep alive or explain."]],
+types:[["Nitrogen (straight)","Urea (46% N), CAN, ammonium sulphate","Ammonia made from natural gas","Compete: biological N-fixers and chop-and-drop legumes replace part of it"],["Phosphatic","DAP (18-46-0), SSP, TSP","Phosphate rock + sulphuric acid","Compete: P-solubilising microbes unlock soil P; biochar holds it"],["Potassic","MOP (muriate of potash), SOP","Mined potash","Complement: hard to replace; K-mobilising microbes stretch it"],["Complex / blended","NPK grades, crop-specific blends","Granulated or bulk-blended","Collaborate: co-blend with biologicals or biochar"],["Specialty","Water-soluble, micronutrient, coated, nano urea","Formulated","Complement: precision use on high-value crops"],["Organic","Compost, manure, vermicompost, rock phosphate","Farm and municipal waste, mined rock","Our space: Soul Agri makes compost at scale"],["Biofertilisers","Rhizobium, Azotobacter, PSB, mycorrhizae","Fermentation","Our space: the microbial business unit"],["Organo-mineral / biochar-based","Biochar or compost enriched with minerals","Blending and pyrolysis","Our space: a bridge product between both worlds"]],
+chain:[["Raw materials",["Natural gas","Phosphate rock","Potash mines","Sulphur"]],["Manufacture",["Ammonia–urea plants","Phosphoric acid","Granulation"]],["Global trade & import",["Yara","OCP","ETG / SABIC","Indian state importers"]],["Blend & bag",["Grainpulse","Balton","Mombasa blenders","Indian NPK plants"]],["Distribute",["Wholesalers","Agro-dealers","Cooperatives","Government schemes"]],["Farmer",["Advice","Credit","Subsidy"]]],
+india:[["IFFCO","Cooperative; largest maker, ~19% of urea and ~29% of complex fertilisers"],["Chambal Fertilisers","Largest private urea maker; Uttam brand"],["Coromandel International","Phosphatics and bio range; 750+ own retail stores"],["National Fertilizers / RCF","State-owned urea majors"],["Paradeep Phosphates","DAP and NPK, Odisha"]],
+uganda:[["Yara, OCP, ETG/SABIC","The three bulk importers into Eastern Africa, each with a large share"],["Balton Uganda","Importer with a district agro-dealer network; distributes Yara"],["Grainpulse","Local blender; one-stop shop for smallholders"],["Itracom Fertilizers","Supplies government subsidy bags; planned US$180M organic plant"],["Guangzhou Dongsong (Sukulu)","US$620M phosphate project in Tororo; stalled in 2026"]],
+plays:[["Replace","Where the buyer pays for no chemicals","Sell the regenerative bundle (compost, biochar, microbes) to certified organic and export estates: coffee, cocoa, avocado, flowers. Soul Agri's own certified organic farm is the proof plot."],["Collaborate","Where the bag already rules","Put our biologicals and biochar into the fertiliser players' channels: co-blends with Grainpulse, white-label through Balton's dealers, organic lines for Itracom-type government schemes. We ride their rails instead of building our own."],["Reduce, then switch","The transition product","Offer 'less bag plus biologicals': a lower NPK dose with microbes and biochar, sold as the same yield at lower cost. Each season of soil building lets the farmer cut the bag further. To be proven in our trials before claiming any saving."]],
+whom:[["Grainpulse","Co-blend biologicals or biochar into crop-specific blends","Blender that already does farmer training"],["Balton Uganda","White-label distribution through its dealer network","Reach into districts we can't cover"],["Itracom","Organic and bio lines for government programmes","Holds the subsidy supply channel"],["Coromandel / IFFCO (India)","Technology licensing and product benchmarking","Both already sell bio and specialty ranges"],["Coffee and cocoa exporters","Bundle inputs with their outgrower schemes","Need EUDR-proof, residue-free supply"]],
+path:[{h:"Now",n:[["Own farm runs without synthetic fertiliser","now"]]},{h:"6 months",n:[["Trials: biologicals + less NPK vs full NPK","step"]]},{h:"Gate",n:[["Same yield, lower cost, proven on 3 crops","gate"]]},{h:"18 months",n:[["Collaborate: co-blends with fertiliser players","step"],["Replace: bundle for organic estates","alt"]]},{h:"36 months",n:[["Regenerative nutrition brand across East Africa","end"]]}],
+ideas:[["x","Biochar-enriched NPK","Coat or blend NPK with biochar so less fertiliser washes away and more reaches the crop.","Sells into the existing bag habit.","Must show the efficiency gain in trials."],["x","Organic line for government schemes","Supply certified organic and biological inputs into subsidy programmes for coffee, tea and cocoa.","Huge, guaranteed volume.","Tender politics and slow payment."],["x","Soil test plus prescription","Test soil, then prescribe the minimum bag plus biologicals (links to FieldProof).","Trust and data; we decide the dose.","Lab cost per farmer."],["o","Fertiliser dealer franchise","Run our own agro-dealer shops that sell bags and our inputs side by side.","Owns the farmer relationship.","Capital tied up in stock."],["o","Nutrient-as-a-service","Charge estates per acre for a managed nutrition plan, whatever the mix of inputs.","Recurring revenue; aligned with yield.","We carry the yield risk."],["o","Licensing from India","License proven bio-formulations from Indian makers for East Africa.","Faster to market.","Royalty and registration costs."]],
+src:[["PIB, Govt of India: fertiliser sector (Aug 2025)","https://static.pib.gov.in/WriteReadData/specificdocs/documents/2025/aug/doc202583598601.pdf"],["Lok Sabha Standing Committee on Chemicals & Fertilizers","https://eparlib.sansad.in/bitstream/123456789/3003405/1/18_Chemicals_And_Fertilizers_15.pdf"],["ICRIER: India's fertiliser security","https://icrier.org/pdf/ES_Ensuring-India-s-Fertiliser-Security-Amid-Rising-Geopolitical-Risks.pdf"],["IFDC: Uganda fertilizer statistics 2018–2022","https://hub.ifdc.org/items/ec844f91-070e-41b5-a0f3-ad248e154c39/full"],["COMESA/AMO fertiliser working paper","https://comesacompetition.org/wp-content/uploads/2024/04/CCC_AMO-Fertiliser-Working-Paper.pdf"],["Daily Monitor: Uganda's strategic fertiliser subsidy","https://www.monitor.co.ug/uganda/magazines/farming/uganda-tackles-low-agricultural-productivity-with-strategic-fertiliser-subsidy-5577544"],["Nile Post: Sukulu phosphate project stalls (Feb 2026)","https://nilepost.co.ug/sukulu%20phosphate%20project/322455/sukulu-phosphate-project-stalls-amid-dispute-over-operations"],["AGRA/IFDC: Uganda fertilizer distribution assessment","https://agra.org/wp-content/uploads/2020/08/Uganda-Report_Assessment-of-Fertilizer-Distribution-Systems-and-Opportunities-for-Developing-Fertilizer-Blends.pdf"]]};
+const LINKS={farm:1,bio:1,carbon:1};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const chip=k=>`<span class="chip ${ST[k][1]}">${ST[k][0]}</span>`;
+const app=document.getElementById("app");
+let ro=null;
+
+function home(){
+  const n=V.length,cx=260,cy=260,R=205;
+  const nodes=V.map((v,i)=>{const a=-Math.PI/2+i*2*Math.PI/n,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a),right=Math.cos(a)>=0,lx=x+(right?18:-18),ly=y+(Math.sin(a)>0.6?24:Math.sin(a)<-0.6?-18:5);
+    const col=getComputedStyle(document.documentElement).getPropertyValue({ok:"--ok",act:"--act",res:"--res",idea:"--idea"}[v.st]);
+    const lab={farm:"Farm",nursery:"Nursery",carbon:"Biochar",bio:"Biologicals",ac:"Act. carbon",export:"Exports",oils:"Oils",tourism:"Tourism",solar:"Solar"}[v.id]||v.name;
+    return `<a href="#${v.id}" aria-label="${esc(v.name)}"><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(59,227,255,.12)"/><circle class="n" cx="${x}" cy="${y}" r="11" fill="${col}" style="filter:drop-shadow(0 0 6px ${col})"/><circle cx="${x}" cy="${y}" r="18" fill="none" stroke="${col}" stroke-opacity=".5"/><text x="${lx}" y="${ly}" text-anchor="${Math.abs(Math.cos(a))<.2?"middle":right?"start":"end"}">${esc(lab)}</text></a>`}).join("");
+  const ticks=Array.from({length:72},(_,i)=>{const a=i*5*Math.PI/180,r1=i%6?236:228;return `<line x1="${cx+r1*Math.cos(a)}" y1="${cy+r1*Math.sin(a)}" x2="${cx+242*Math.cos(a)}" y2="${cy+242*Math.sin(a)}" stroke="var(--cy)" stroke-opacity=".45"/>`}).join("");
+  const cnt=k=>V.filter(v=>v.st===k).length;
+  app.innerHTML=`<div class="wrap"><div class="home">
+  <section class="hero"><h1>Soul Agri & LNB business units</h1>
+  <p class="lede">Nine business units we run or are exploring. Open one to see its business model, where it stands now, the competition in India and Uganda, its value chain, the paths it could take and the ideas on the table.</p>
+  <div class="legend">${Object.keys(ST).map(k=>`<span class="chip ${ST[k][1]}">${ST[k][0]} · ${cnt(k)}</span>`).join("")}</div>
+  <nav class="units" aria-label="Business units">${V.map(v=>`<a class="unit" href="#${v.id}"><b>${esc(v.name)}</b><span class="d">${esc(v.short)}</span>${chip(v.st)}</a>`).join("")}</nav>
+  <h3 style="margin:26px 0 10px;color:var(--cy)">Market landscape</h3>
+  <a class="unit mkt" href="#fertiliser"><b>Fertiliser: the incumbent</b><span class="d">Types, why farmers depend on it, players and value chain in India and Uganda, and whether to replace or collaborate</span><span class="chip s-idea">Competitor landscape</span></a></section>
+  <div class="ring" aria-hidden="false"><svg viewBox="0 0 520 520" role="img" aria-label="Ring of business units">
+  <g class="spin">${ticks}</g>
+  <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(--cy)" stroke-opacity=".35" stroke-dasharray="2 6"/>
+  <g class="spin2"><circle cx="${cx}" cy="${cy}" r="150" fill="none" stroke="var(--cy)" stroke-opacity=".25" stroke-width="10" stroke-dasharray="60 24"/></g>
+  <circle cx="${cx}" cy="${cy}" r="96" fill="rgba(59,227,255,.06)" stroke="var(--cy)" stroke-opacity=".7" stroke-width="2"/>
+  <circle cx="${cx}" cy="${cy}" r="58" fill="rgba(59,227,255,.14)" stroke="var(--cy)" style="filter:drop-shadow(0 0 14px #3be3ff)"/>
+  <text x="${cx}" y="${cy-4}" text-anchor="middle" style="font:700 30px Rajdhani,sans-serif;fill:#e6f6ff">${n}</text>
+  <text x="${cx}" y="${cy+20}" text-anchor="middle" style="font:600 14px Rajdhani,sans-serif;fill:#93b6cc">business units</text>
+  ${nodes}</svg></div></div>
+  <p class="foot">Built from our past chats (Aug–Nov 2026) and public sources. Competitor lists are a starting map, not a full census.</p></div>`;
+  document.title="Soul Agri Command Centre";
+}
+
+function wrapTxt(t,max){const w=t.split(" "),L=[];let c="";w.forEach(x=>{if((c+" "+x).trim().length>max&&c){L.push(c);c=x}else c=(c+" "+x).trim()});if(c)L.push(c);return L}
+function rnd(seed){let s=seed;return()=>(s=s*16807%2147483647)/2147483647}
+function sketch(fig,v){
+  const svg=fig.querySelector("svg"),W=fig.clientWidth,P=v.path,vert=W<640,r=rnd(v.id.length*977+13);
+  const j=a=>(r()-.5)*a;
+  const line=(x1,y1,x2,y2,c,w,d)=>{const mx=(x1+x2)/2+j(8),my=(y1+y2)/2+j(8);return `<path d="M${x1+j(2)} ${y1+j(2)} Q${mx} ${my} ${x2+j(2)} ${y2+j(2)}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" ${d?'stroke-dasharray="7 7"':""}/>`};
+  const box=(x,y,w,h,c,d)=>line(x,y,x+w,y,c,2.6,d)+line(x+w,y,x+w,y+h,c,2.6,d)+line(x+w,y+h,x,y+h,c,2.6,d)+line(x,y+h,x,y-3,c,2.6,d);
+  const arrow=(x1,y1,x2,y2,c)=>{const a=Math.atan2(y2-y1,x2-x1),h=11;return line(x1,y1,x2,y2,c,2.4)+`<path d="M${x2} ${y2} L${x2-h*Math.cos(a-.45)} ${y2-h*Math.sin(a-.45)} M${x2} ${y2} L${x2-h*Math.cos(a+.45)} ${y2-h*Math.sin(a+.45)}" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>`};
+  const col={now:"#1d5fd1",step:"#1b1f24",gate:"#d6392f",alt:"#1f9d55",end:"#1d5fd1"};
+  let H,pos=[],out="";
+  if(!vert){
+    const cw=W/P.length,bw=Math.min(cw-34,210),chars=Math.max(10,Math.floor(bw/10.5));
+    H=Math.max(360,P.reduce((m,c)=>Math.max(m,c.n.length),1)*150+90);
+    P.forEach((c,i)=>{const cx=cw*i+cw/2;out+=`<text x="${cx}" y="38" text-anchor="middle" style="font:700 24px Caveat,"Comic Sans MS",cursive" fill="#5b6670">${esc(c.h)}</text>`;
+      const k=c.n.length;pos[i]=c.n.map((n,m)=>{const L=wrapTxt(n[0],chars),bh=L.length*22+26,y=(H+40)/2+(m-(k-1)/2)*150-bh/2;return {x:cx-bw/2,y,w:bw,h:bh,L,k:n[1]}})});
+  }else{
+    const bw=Math.min(W-60,320),chars=Math.max(12,Math.floor(bw/10.5));let y=20;
+    P.forEach((c,i)=>{out+=`<text x="20" y="${y+18}" style="font:700 22px Caveat,cursive" fill="#5b6670">${esc(c.h)}</text>`;y+=30;
+      const k=c.n.length,w=k>1?(W-60)/2:bw;pos[i]=c.n.map((n,m)=>{const L=wrapTxt(n[0],Math.max(10,Math.floor(w/10.5))),bh=L.length*22+26,x=k>1?20+m*((W-60)/2+20):(W-bw)/2;return {x,y,w,h:bh,L,k:n[1]}});
+      y+=Math.max(...pos[i].map(p=>p.h))+46});
+    H=y;
+  }
+  fig.style.height=H+"px";
+  for(let i=0;i<pos.length-1;i++)pos[i].forEach(a=>pos[i+1].forEach(b=>{const c=b.k==="alt"?"#1f9d55":"#1b1f24";
+    out+=vert?arrow(a.x+a.w/2,a.y+a.h+4,b.x+b.w/2,b.y-8,c):arrow(a.x+a.w+4,a.y+a.h/2,b.x-8,b.y+b.h/2,c)}));
+  pos.flat().forEach(p=>{const c=col[p.k];out+=box(p.x,p.y,p.w,p.h,c,p.k==="gate");
+    if(p.k==="end")out+=box(p.x-5,p.y-5,p.w+10,p.h+10,c);
+    if(p.k==="gate")out+=`<text x="${p.x+p.w-6}" y="${p.y-8}" text-anchor="end" style="font:700 18px Caveat,cursive" fill="#d6392f">kill or go?</text>`;
+    out+=p.L.map((l,q)=>`<text x="${p.x+p.w/2}" y="${p.y+28+q*22}" text-anchor="middle" style="font:600 20px Caveat,"Comic Sans MS",cursive" fill="${c}">${esc(l)}</text>`).join("")});
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.innerHTML=out;
+}
+
+function unit(v){
+  const i=V.indexOf(v),prev=V[(i+V.length-1)%V.length],next=V[(i+1)%V.length];
+  const co=a=>a.map(c=>`<div class="co"><b>${esc(c[0])}</b><span>${esc(c[1])}</span></div>`).join("");
+  app.innerHTML=`<div class="wrap">
+  <div class="bar"><a class="btn" href="#home">◂ All units</a><div class="ctl"><a class="btn" href="#${prev.id}" aria-label="Previous unit: ${esc(prev.name)}">◂ Prev</a><a class="btn" href="#${next.id}" aria-label="Next unit: ${esc(next.name)}">Next ▸</a></div></div>
+  <header class="hd"><div><h1>${esc(v.name)}</h1><p>${esc(v.short)}</p></div><div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">${LINKS[v.id]?`<a class="btn" href="#fertiliser">Compared with synthetic fertiliser ▸</a>`:""}${chip(v.st)}</div></header>
+  ${v.kpi?`<div class="kpis">${v.kpi.map(k=>`<div class="kpi"><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join("")}</div>`:""}
+  ${v.syn?`<div class="two"><section class="panel"><h2>What syntropic farming is</h2><p>${esc(v.syn)}</p><p class="src">Soul Agri design: 800 plants per acre in six layers, ~64% biomass trees feeding ~36% productive crops.</p></section>
+  <section class="panel"><h2>Where the land goes</h2><div class="bars">${v.land.map(r=>`<div class="br"><span>${esc(r[0])}</span><span class="tr"><i class="${r[0].startsWith("Not")?"m":"g"}" style="width:${(r[1]/2619*100).toFixed(1)}%"></i></span><em>${esc(r[2])} ac</em></div>`).join("")}</div>
+  <h3 style="margin:22px 0 10px;color:var(--cy)">Syntropic planting, cumulative acres</h3><div class="bars">${v.prog.map(r=>`<div class="br"><span>${esc(r[0])}</span><span class="tr"><i style="width:${Math.max(1,r[1]/2619*100).toFixed(1)}%"></i></span><em>${esc(r[2])} ac</em></div>`).join("")}</div><p class="src">Estate total 4,200 acres. Planting pace ~450 acres a year from 2027.</p></section></div>`:""}
+  ${v.why?`<section class="panel why" style="margin-bottom:18px"><h2 style="color:var(--ok)">Why regenerative: the reason customers buy</h2><p class="lead">${esc(v.why.lead)}</p><div class="pts">${v.why.pts.map(x=>`<div class="pt"><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join("")}</div></section>`:""}
+  ${v.money?`<section class="panel" style="margin-bottom:18px"><h2>How the farm makes money</h2><div class="scroll"><table class="ly"><thead><tr><th>Revenue line</th><th>What</th><th>Scale and economics</th></tr></thead><tbody>${v.money.map(r=>`<tr><td data-l="Line"><b>${esc(r[0])}</b></td><td data-l="What">${esc(r[1])}</td><td data-l="Scale">${esc(r[2])}</td></tr>`).join("")}</tbody></table></div><p class="src">Processing figures are pilot plans for the 9,000 sq ft facility (~₹3 crore). Revenue projections are kept in separate financial models.</p></section>`:""}
+  <div class="two"><section class="panel"><h2>The business model</h2><p>${esc(v.def)}</p></section>
+  <section class="panel"><h2>Where we stand</h2><ul class="st">${v.now.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><p class="src">From: ${esc(v.src)}</p></section></div>
+  ${v.layers?`<section class="sec panel"><h2>What grows on each acre</h2><p class="mut" style="margin:-6px 0 12px;font-size:14px">Six layers plus line crops, 800 plants per acre: 288 productive from 13 species, 512 biomass. Plants per acre are design figures; output figures are for the full 2,619 acres at peak.</p><div class="scroll"><table class="ly"><thead><tr><th>Layer</th><th>Species</th><th>Plants / acre</th><th>Output and timing</th></tr></thead><tbody>${v.layers.map(r=>`<tr><td data-l="Layer">${esc(r[0])}</td><td data-l="Species">${esc(r[1])}</td><td class="n" data-l="Plants / acre">${esc(r[2])}</td><td data-l="Output">${esc(r[3])}</td></tr>`).join("")}</tbody></table></div></section>`:""}
+  ${v.build?`<section class="sec panel"><h2>How we've structured it</h2><div class="bld">${v.build.map(x=>`<div><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join("")}</div></section>`:""}
+  ${v.gaps?`<section class="sec panel" style="border-color:rgba(255,143,122,.45)"><h2 style="color:var(--idea)">Data gaps to check</h2><ul class="gp">${v.gaps.map(g=>`<li>${esc(g)}</li>`).join("")}</ul><p class="src">A block-wise register from the Verdnt ERP or field census (block, acres, planting date, plants by layer, survival %) would close most of these.</p></section>`:""}
+  <section class="sec"><h2>Competitors</h2><div class="two"><div class="panel"><span class="flag">India</span><div class="comp">${co(v.india)}</div></div><div class="panel"><span class="flag">Uganda & East Africa</span><div class="comp">${co(v.uganda)}</div></div></div></section>
+  <section class="sec"><h2>Value chain & key players</h2><div class="chain">${v.chain.map(s=>`<div class="stg"><h3>${esc(s[0])}</h3><div class="pl">${s[1].map(p=>`<i>${esc(p)}</i>`).join("")}</div></div>`).join("")}</div></section>
+  <section class="sec"><h2>Possible path</h2><div class="wb"><div class="fig" id="fig"><svg aria-label="Whiteboard sketch of the possible path"></svg></div>
+  <div class="wbkey"><span><i style="border-color:#1b1f24"></i>main path</span><span><i style="border-color:#1f9d55"></i>alternative</span><span><i style="border-color:#d6392f;border-top-style:dashed"></i>decision gate</span><span><i style="border-color:#1d5fd1"></i>start and target</span></div></div></section>
+  <section class="sec"><div class="sechd"><h2>Ideas & other business models</h2><div class="ctl"><button class="btn" id="cp" aria-label="Previous cards">◂</button><button class="btn" id="cn" aria-label="Next cards">▸</button></div></div>
+  <p class="mut" style="margin:0 0 12px;font-size:14px">Blue cards are ideas we are exploring now; coral cards are other operating models used in this industry. Click a card for detail.</p>
+  <div class="cards" id="cards" tabindex="0">${v.ideas.map((d,k)=>`<button class="card" data-k="${k}"><span class="chip ${d[0]==="x"?"s-act":"s-idea"}">${d[0]==="x"?"Exploring now":"Other model"}</span><h3>${esc(d[1])}</h3><p>${esc(d[2])}</p><span class="more">Open card ▸</span></button>`).join("")}</div></section>
+  </div>`;
+  document.title=v.name+" · Command Centre";
+  const fig=document.getElementById("fig");ro&&ro.disconnect();ro=new ResizeObserver(()=>sketch(fig,v));ro.observe(fig);
+  const cards=document.getElementById("cards"),step=()=>cards.querySelector(".card").offsetWidth+14;
+  document.getElementById("cp").onclick=()=>cards.scrollBy({left:-step(),behavior:"smooth"});
+  document.getElementById("cn").onclick=()=>cards.scrollBy({left:step(),behavior:"smooth"});
+  cards.onkeydown=e=>{if(e.key==="ArrowRight")cards.scrollBy({left:step()});if(e.key==="ArrowLeft")cards.scrollBy({left:-step()})};
+  cards.querySelectorAll(".card").forEach(b=>b.onclick=()=>openCard(v,v.ideas[+b.dataset.k],b));
+  window.scrollTo(0,0);
+}
+
+const modal=document.getElementById("modal"),mbox=document.getElementById("mbox");let back=null;
+function openCard(v,d,src){back=src;
+  mbox.innerHTML=`<span class="chip ${d[0]==="x"?"s-act":"s-idea"}">${d[0]==="x"?"Exploring now":"Other model"} · ${esc(v.name)}</span><h3 id="mt">${esc(d[1])}</h3><p>${esc(d[2])}</p><dl><dt>Why it could work</dt><dd>${esc(d[3])}</dd><dt>What to watch</dt><dd>${esc(d[4])}</dd></dl><div style="margin-top:20px"><button class="btn" id="mc">Close</button></div>`;
+  modal.classList.add("on");document.getElementById("mc").focus();document.getElementById("mc").onclick=closeCard}
+function closeCard(){modal.classList.remove("on");back&&back.focus()}
+modal.onclick=e=>{if(e.target===modal)closeCard()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal.classList.contains("on"))closeCard()});
+
+
+function fert(){const v=F,co=a=>a.map(c=>`<div class="co"><b>${esc(c[0])}</b><span>${esc(c[1])}</span></div>`).join("");
+  app.innerHTML=`<div class="wrap">
+  <div class="bar"><a class="btn" href="#home">◂ All units</a><div class="ctl"><a class="btn" href="#farm">Farm ▸</a><a class="btn" href="#bio">Biologicals ▸</a></div></div>
+  <header class="hd"><div><h1>${esc(v.name)}</h1><p>${esc(v.short)}</p></div><span class="chip s-idea">Competitor landscape</span></header>
+  <div class="kpis">${v.kpi.map(k=>`<div class="kpi"><b>${esc(k[0])}</b><span>${esc(k[1])}</span></div>`).join("")}</div>
+  <div class="two"><section class="panel"><h2>What fertilisers are</h2><p>${esc(v.what)}</p></section>
+  <section class="panel"><h2>Why farmers depend on them</h2><ul class="st">${v.dep.map(d=>`<li><b>${esc(d[0])}.</b> ${esc(d[1])}</li>`).join("")}</ul></section></div>
+  <section class="sec panel"><h2>Types of fertiliser, and where Soul Agri stands</h2><div class="scroll"><table class="ly"><thead><tr><th>Type</th><th>Examples</th><th>Made from</th><th>Soul Agri position</th></tr></thead><tbody>${v.types.map(r=>`<tr><td data-l="Type"><b>${esc(r[0])}</b></td><td data-l="Examples">${esc(r[1])}</td><td data-l="Made from">${esc(r[2])}</td><td data-l="Position">${esc(r[3])}</td></tr>`).join("")}</tbody></table></div></section>
+  <section class="sec"><h2>Value chain & key players</h2><div class="chain">${v.chain.map(s=>`<div class="stg"><h3>${esc(s[0])}</h3><div class="pl">${s[1].map(p=>`<i>${esc(p)}</i>`).join("")}</div></div>`).join("")}</div></section>
+  <section class="sec"><h2>Players</h2><div class="two"><div class="panel"><span class="flag">India</span><div class="comp">${co(v.india)}</div></div><div class="panel"><span class="flag">Uganda & East Africa</span><div class="comp">${co(v.uganda)}</div></div></div></section>
+  <section class="sec panel"><h2>Replace or collaborate?</h2><p class="rec"><b>Recommendation: do both, by segment.</b> Replace fertiliser where buyers pay for chemical-free produce; collaborate with fertiliser players where the bag already rules; and use a "less bag plus biologicals" product to move farmers across over time.</p>
+  <div class="plays">${v.plays.map(x=>`<div class="play"><h3>${esc(x[0])}</h3><i>${esc(x[1])}</i><p>${esc(x[2])}</p></div>`).join("")}</div>
+  <h3 style="margin:22px 0 10px;color:var(--cy)">Who to approach</h3><div class="scroll"><table class="ly"><thead><tr><th>Company</th><th>What we'd propose</th><th>Why them</th></tr></thead><tbody>${v.whom.map(r=>`<tr><td data-l="Company"><b>${esc(r[0])}</b></td><td data-l="Proposal">${esc(r[1])}</td><td data-l="Why">${esc(r[2])}</td></tr>`).join("")}</tbody></table></div></section>
+  <section class="sec"><h2>Possible path</h2><div class="wb"><div class="fig" id="fig"><svg aria-label="Whiteboard sketch of the fertiliser strategy path"></svg></div>
+  <div class="wbkey"><span><i style="border-color:#1b1f24"></i>main path</span><span><i style="border-color:#1f9d55"></i>alternative</span><span><i style="border-color:#d6392f;border-top-style:dashed"></i>decision gate</span><span><i style="border-color:#1d5fd1"></i>start and target</span></div></div></section>
+  <section class="sec"><div class="sechd"><h2>Ideas & other business models</h2><div class="ctl"><button class="btn" id="cp" aria-label="Previous cards">◂</button><button class="btn" id="cn" aria-label="Next cards">▸</button></div></div>
+  <div class="cards" id="cards" tabindex="0">${v.ideas.map((d,k)=>`<button class="card" data-k="${k}"><span class="chip ${d[0]==="x"?"s-act":"s-idea"}">${d[0]==="x"?"Exploring now":"Other model"}</span><h3>${esc(d[1])}</h3><p>${esc(d[2])}</p><span class="more">Open card ▸</span></button>`).join("")}</div></section>
+  <section class="sec panel"><h2>Sources</h2><ol class="srcs">${v.src.map(x=>`<li><a href="${esc(x[1])}">${esc(x[0])}</a></li>`).join("")}</ol><p class="src">Recommendations and Soul Agri positions are our analysis, to be tested in field trials.</p></section></div>`;
+  document.title="Fertiliser landscape · Command Centre";
+  const fig=document.getElementById("fig");ro&&ro.disconnect();ro=new ResizeObserver(()=>sketch(fig,v));ro.observe(fig);
+  const cards=document.getElementById("cards"),step=()=>cards.querySelector(".card").offsetWidth+14;
+  document.getElementById("cp").onclick=()=>cards.scrollBy({left:-step(),behavior:"smooth"});
+  document.getElementById("cn").onclick=()=>cards.scrollBy({left:step(),behavior:"smooth"});
+  cards.querySelectorAll(".card").forEach(b=>b.onclick=()=>openCard(v,v.ideas[+b.dataset.k],b));
+  window.scrollTo(0,0)}
+function route(){modal.classList.remove("on");ro&&ro.disconnect();const id=location.hash.slice(1),v=V.find(x=>x.id===id);id==="fertiliser"?fert():v?unit(v):home()}
+window.addEventListener("hashchange",route);route();
+}
+</script>
+</body>
+</html>
